@@ -1,0 +1,171 @@
+schema @link(url: "https://specs.apollo.dev/link/v1.0") @link(url: "https://specs.apollo.dev/federation/v2.6", import: ["@key"]) {
+  query: Query
+}
+
+directive @authenticated on FIELD_DEFINITION
+
+directive @upper on FIELD_DEFINITION
+
+directive @lower on FIELD_DEFINITION
+
+directive @date(dateFormat: DateFormat, timeFormat: TimeFormat) on FIELD_DEFINITION
+
+directive @capitalize on FIELD_DEFINITION
+
+directive @capitalizeAll on FIELD_DEFINITION
+
+directive @length(max: Int) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @validate(min: Int, max: Int, minLength: Int, maxLength: Int, isEmail: Boolean) on INPUT_FIELD_DEFINITION
+
+directive @remove(if: ClientType!) on FIELD_DEFINITION | OBJECT | INPUT_FIELD_DEFINITION | INPUT_OBJECT | ENUM | INTERFACE | ENUM_VALUE
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+directive @key(fields: federation__FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+
+directive @federation__requires(fields: federation__FieldSet!) on FIELD_DEFINITION
+
+directive @federation__provides(fields: federation__FieldSet!) on FIELD_DEFINITION
+
+directive @federation__external(reason: String) on OBJECT | FIELD_DEFINITION
+
+directive @federation__tag(name: String!) repeatable on FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION | SCHEMA
+
+directive @federation__extends on OBJECT | INTERFACE
+
+directive @federation__shareable repeatable on OBJECT | FIELD_DEFINITION
+
+directive @federation__inaccessible on FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+directive @federation__override(from: String!) on FIELD_DEFINITION
+
+directive @federation__composeDirective(name: String) repeatable on SCHEMA
+
+directive @federation__interfaceObject on OBJECT
+
+directive @federation__authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
+
+directive @federation__requiresScopes(scopes: [[federation__Scope!]!]!) on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
+
+directive @federation__policy(policies: [[federation__Policy!]!]!) on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
+
+type Price {
+  value: Int!
+  label: String!
+}
+
+type Query {
+  product(data: GetProductInput!): Product
+  productAuth: Product @authenticated
+  products: [Product]!
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+}
+
+enum ClientType {
+  SITE
+  APP
+}
+
+enum DateFormat {
+  SHORT
+  MEDIUM
+  LONG
+  FULL
+}
+
+enum TimeFormat {
+  SHORT
+  MEDIUM
+  LONG
+  FULL
+}
+
+enum GetProductType {
+  SKU
+}
+
+input GetProductInput {
+  value: StringWithLengthAtMost5 @length(max: 5)
+  type: GetProductType!
+  test: IntWithValidate @validate(min: 8)
+  email: StringWithValidate @validate(isEmail: true, maxLength: 10, minLength: 6)
+}
+
+scalar IntWithValidate
+
+scalar StringWithValidate
+
+scalar StringWithLengthAtMost5
+
+type Product @key(fields: "sku") {
+  sku: String!
+  name: String! @upper
+  description: String! @capitalizeAll
+  heavy: Heavy
+  createdAt: String @date(dateFormat: MEDIUM, timeFormat: SHORT)
+  offer: Offer
+  dev: Boolean @remove(if: SITE)
+  sim: String!
+}
+
+type Heavy @key(fields: "id") {
+  id: String!
+  name: String!
+  description: String!
+}
+
+type Offer @key(fields: "id", resolvable: false) {
+  id: ID!
+}
+
+type MD @remove(if: SITE) {
+  id: ID!
+  power: Float!
+}
+
+input MD2 @remove(if: SITE) {
+  A: String!
+}
+
+enum MD1 @remove(if: SITE) {
+  A
+  B @remove(if: SITE)
+}
+
+interface MD3 @remove(if: SITE) {
+  X: String!
+}
+
+input MD4 {
+  A: Int!
+  B: Int! @remove(if: SITE)
+}
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+scalar link__Import
+
+scalar federation__FieldSet
+
+scalar federation__Scope
+
+scalar federation__Policy
+
+scalar _Any
+
+type _Service {
+  sdl: String
+}
+
+union _Entity = Heavy | Offer | Product

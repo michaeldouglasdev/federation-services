@@ -1,0 +1,170 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION)
+{
+  query: Query
+}
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+enum ClientType
+  @join__type(graph: PRODUCTS)
+{
+  SITE @join__enumValue(graph: PRODUCTS)
+  APP @join__enumValue(graph: PRODUCTS)
+}
+
+enum DateFormat
+  @join__type(graph: PRODUCTS)
+{
+  SHORT @join__enumValue(graph: PRODUCTS)
+  MEDIUM @join__enumValue(graph: PRODUCTS)
+  LONG @join__enumValue(graph: PRODUCTS)
+  FULL @join__enumValue(graph: PRODUCTS)
+}
+
+input GetProductInput
+  @join__type(graph: PRODUCTS)
+{
+  value: String!
+  type: GetProductType!
+  test: Int!
+  email: String!
+}
+
+enum GetProductType
+  @join__type(graph: PRODUCTS)
+{
+  SKU @join__enumValue(graph: PRODUCTS)
+}
+
+type Heavy
+  @join__type(graph: PRODUCTS, key: "id")
+{
+  id: String!
+  name: String!
+  description: String!
+}
+
+scalar join__FieldSet
+
+enum join__Graph {
+  OFFERS @join__graph(name: "offers", url: "http://localhost:4002")
+  PRODUCTS @join__graph(name: "products", url: "http://localhost:4001")
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+type MD
+  @join__type(graph: PRODUCTS)
+{
+  id: ID!
+  power: Float!
+}
+
+enum MD1
+  @join__type(graph: PRODUCTS)
+{
+  A @join__enumValue(graph: PRODUCTS)
+  B @join__enumValue(graph: PRODUCTS)
+}
+
+input MD2
+  @join__type(graph: PRODUCTS)
+{
+  A: String!
+}
+
+interface MD3
+  @join__type(graph: PRODUCTS)
+{
+  X: String!
+}
+
+input MD4
+  @join__type(graph: PRODUCTS)
+{
+  A: Int!
+  B: Int!
+}
+
+type OfexSection
+  @join__type(graph: OFFERS)
+{
+  id: ID!
+  title: String!
+  products: [Product]! @join__field(graph: OFFERS, provides: "name")
+}
+
+type Offer
+  @join__type(graph: OFFERS, key: "id")
+  @join__type(graph: PRODUCTS, key: "id")
+{
+  id: ID!
+  name: String! @join__field(graph: OFFERS) @join__field(graph: PRODUCTS, external: true)
+  description: String! @join__field(graph: OFFERS)
+}
+
+type Price
+  @join__type(graph: PRODUCTS)
+{
+  value: Int!
+  label: String!
+}
+
+type Product
+  @join__type(graph: OFFERS, key: "sku")
+  @join__type(graph: PRODUCTS, key: "sku")
+{
+  sku: ID!
+  name: String! @join__field(graph: OFFERS, external: true) @join__field(graph: PRODUCTS)
+  description: String! @join__field(graph: PRODUCTS)
+  heavy: Heavy @join__field(graph: PRODUCTS)
+  createdAt: String @join__field(graph: PRODUCTS)
+  offer: Offer @join__field(graph: PRODUCTS, provides: "name")
+  dev: Boolean @join__field(graph: PRODUCTS)
+  sim: String! @join__field(graph: PRODUCTS)
+}
+
+type Query
+  @join__type(graph: OFFERS)
+  @join__type(graph: PRODUCTS)
+{
+  ofexSections: [OfexSection]! @join__field(graph: OFFERS)
+  product(data: GetProductInput!): Product @join__field(graph: PRODUCTS)
+  productAuth: Product @join__field(graph: PRODUCTS)
+  products: [Product]! @join__field(graph: PRODUCTS)
+}
+
+enum TimeFormat
+  @join__type(graph: PRODUCTS)
+{
+  SHORT @join__enumValue(graph: PRODUCTS)
+  MEDIUM @join__enumValue(graph: PRODUCTS)
+  LONG @join__enumValue(graph: PRODUCTS)
+  FULL @join__enumValue(graph: PRODUCTS)
+}
