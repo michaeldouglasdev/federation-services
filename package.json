@@ -1,0 +1,38 @@
+{
+  "name": "federation-services",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon --ext ts,graphql --exec ts-node server.ts",
+    "router:start": "nodemon --ext ts,graphql --exec ts-node router.server.ts",
+    "router:init": "curl -sSL https://router.apollo.dev/download/nix/latest | sh"
+  },
+  "dependencies": {
+    "@apollo/datasource-rest": "5.0.2",
+    "@apollo/gateway": "^2.7.2",
+    "@apollo/server": "^4.10.1",
+    "@apollo/subgraph": "^2.7.2",
+    "@graphql-tools/load-files": "^7.0.0",
+    "@graphql-tools/schema": "^10.0.3",
+    "@graphql-tools/utils": "^10.1.2",
+    "axios": "^1.6.8",
+    "dataloader": "^2.2.2",
+    "dotenv": "^16.4.5",
+    "graphql": "17.0.0-alpha.2",
+    "nodemon": "^3.1.0",
+    "reflect-metadata": "^0.2.2",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.7.1"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/typescript": "^4.0.6",
+    "@graphql-codegen/typescript-resolvers": "^4.0.6",
+    "typescript": "^5.4.3"
+  },
+  "resolutions": {
+    "jackspeak": "2.1.1"
+  }
+}

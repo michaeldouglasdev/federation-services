@@ -1,0 +1,14 @@
+#supergraph.yaml
+
+federation_version: =2.6.0
+subgraphs:
+  products:
+    routing_url: http://localhost:4001
+    schema:
+      subgraph_url: http://localhost:4001
+      #file: ./src/generated/products-subgraph.graphql
+  offers:
+    routing_url: http://localhost:4002
+    schema:
+      subgraph_url: http://localhost:4002
+      #file: ./src/generated/offers-subgraph.graphql

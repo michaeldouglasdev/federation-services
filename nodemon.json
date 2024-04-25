@@ -1,0 +1,6 @@
+{
+  "watch": ["src/**/*.ts", "src/**/*.graphql"],
+  "ext": "ts,graphql",
+  "ignore": ["src/generated/**.graphql", "supergraph.graphql"],
+  "exec": "ts-node src/server.ts"
+}

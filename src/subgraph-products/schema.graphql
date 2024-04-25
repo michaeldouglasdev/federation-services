@@ -1,0 +1,114 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.6"
+    import: ["@key", "@shareable", "@provides", "@external"]
+  )
+
+directive @defer on FIELD
+directive @authenticated on FIELD_DEFINITION
+directive @upper on FIELD_DEFINITION
+directive @lower on FIELD_DEFINITION
+directive @date(
+  dateFormat: DateFormat
+  timeFormat: TimeFormat
+) on FIELD_DEFINITION
+directive @capitalize on FIELD_DEFINITION
+directive @capitalizeAll on FIELD_DEFINITION
+directive @length(max: Int) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @validate(
+  min: Int
+  max: Int
+  minLength: Int
+  maxLength: Int
+  isEmail: Boolean
+) on INPUT_FIELD_DEFINITION
+directive @remove(
+  if: ClientType!
+) on FIELD_DEFINITION | OBJECT | INPUT_FIELD_DEFINITION | INPUT_OBJECT | ENUM | INTERFACE | ENUM_VALUE
+
+type Price {
+  value: Int!
+  label: String!
+}
+
+type Query {
+  product(data: GetProductInput!): Product
+  productAuth: Product @authenticated
+  products: [Product]!
+  rafa(arg1: String, arg2: ID!): String!
+}
+
+enum ClientType {
+  SITE
+  APP
+}
+enum DateFormat {
+  SHORT
+  MEDIUM
+  LONG
+  FULL
+}
+enum TimeFormat {
+  SHORT
+  MEDIUM
+  LONG
+  FULL
+}
+
+enum GetProductType {
+  SKU
+}
+
+input GetProductInput {
+  value: String! @length(max: 10)
+  type: GetProductType!
+  test: Int! @validate(min: 8)
+  email: String! @validate(isEmail: true, maxLength: 10, minLength: 6)
+}
+
+type Product @key(fields: "sku") {
+  sku: ID!
+  name: String! @upper @shareable
+  description: String! @capitalizeAll
+  heavy: Heavy
+  createdAt: String @date(dateFormat: MEDIUM, timeFormat: SHORT)
+  offer: Offer @provides(fields: "name")
+  dev: Boolean @remove(if: SITE)
+  sim: String!
+}
+
+type Heavy @key(fields: "id") {
+  id: String!
+  name: String!
+  description: String!
+}
+
+#type Offer @key(fields: "id", resolvable: false) {
+# id: ID!
+#}
+
+type MD @remove(if: SITE) {
+  id: ID!
+  power: Float!
+}
+
+input MD2 @remove(if: SITE) {
+  A: String!
+}
+enum MD1 @remove(if: SITE) {
+  A
+  B @remove(if: SITE)
+}
+interface MD3 @remove(if: SITE) {
+  X: String!
+}
+
+input MD4 {
+  A: Int!
+  B: Int! @remove(if: SITE)
+}
+
+type Offer @key(fields: "id") {
+  id: ID!
+  name: String! @external @upper
+}
